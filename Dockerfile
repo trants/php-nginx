@@ -26,11 +26,18 @@ RUN apk --no-cache add \
   supervisor \
   && rm /etc/nginx/conf.d/default.conf
 
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 # Configure nginx
-COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY config/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Configure PHP-FPM
+COPY config/php/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
+COPY config/php/php.ini /etc/php7/conf.d/custom.ini
 
 # Configure supervisord
-COPY supervisor/conf.d/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY config/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Setup document root
 RUN mkdir -p /var/www
@@ -46,9 +53,10 @@ USER nobody
 
 # Add application
 WORKDIR /var/www
+COPY --chown=nobody src/ /var/www/
 
 # Expose the port nginx is reachable on
-EXPOSE 8080
+EXPOSE 8080 8443
 
 # Let supervisord start nginx & php-fpm
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

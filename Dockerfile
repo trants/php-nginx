@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3
 LABEL Maintainer="Son T. Tran <contact@trants.io>"
 LABEL Description="Lightweight container with Nginx 1.18 & PHP 8.0 based on Alpine Linux."
 
